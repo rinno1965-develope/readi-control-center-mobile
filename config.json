@@ -1,0 +1,35 @@
+{
+  "imap": {
+    "server": "imap.gmx.com",
+    "port": 993,
+    "email_user": "readi.controlcenter@gmx.com",
+    "email_pass": "Aibotix7805!"
+  },
+  "poll_seconds": 15,
+  "tail_uids": 300,
+  "ui": {
+    "title": "ReADI Control Center AiviewGroup-OPS",
+    "lock_1366x768": false,
+    "logo_path": "assets/aiviewgroup.png"
+  },
+  "aliases": {
+    "ALPHA": ["ALPHA"],
+    "BRAVO": ["BRAVO"],
+    "CHARLIE": ["CHARLIE"],
+    "DELTA": ["DELTA"],
+    "ECHO": ["ECHO"],
+    "FOXTROT": ["FOXTROT"],
+    "GOLF": ["GOLF"],
+    "HOTEL": ["HOTEL"],
+    "INDIA": ["INDIA"],
+    "OVADA": ["OVADA"],
+    "STURA": ["STURA"],
+    "MASONE": ["MASONE"],
+    "RISSO": ["RISSO"],
+    "P INVREA": ["P INVREA"],
+    "MOVYON UAS": ["MOVYON UAS"],
+    "TRAVAGLIATO": ["TRAVAGLIATO"],
+    "A35 ADDA NORD": ["A35 ADDA NORD"],
+    "ANAS1": ["ANAS1"]
+  }
+}
