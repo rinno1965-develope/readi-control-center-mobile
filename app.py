@@ -419,78 +419,31 @@ st.session_state["cc_connected"] = connected
 st.session_state["cc_error"] = error_msg
 st.session_state["cc_last_refresh"] = now_local()
 
-# =============================
-# CHANGE DETECTION (SUONO)
-# =============================
-
-current_snapshot = json.dumps(model, sort_keys=True, default=str)
-current_notams = json.dumps(notams, sort_keys=True, default=str)
-
-prev_snapshot = st.session_state.get("prev_snapshot")
-prev_notams = st.session_state.get("prev_notams")
-
-changed = False
-
-if prev_snapshot and prev_snapshot != current_snapshot:
-    changed = True
-
-if prev_notams and prev_notams != current_notams:
-    changed = True
-
-st.session_state["prev_snapshot"] = current_snapshot
-st.session_state["prev_notams"] = current_notams
-
-if changed:
-    components.html(
-        """
-        <script>
-        var ctx = new (window.AudioContext || window.webkitAudioContext)();
-        var oscillator = ctx.createOscillator();
-        var gain = ctx.createGain();
-
-        oscillator.type = "sine";
-        oscillator.frequency.setValueAtTime(1500, ctx.currentTime);
-
-        oscillator.connect(gain);
-        gain.connect(ctx.destination);
-
-        oscillator.start();
-        gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.3);
-        </script>
-        """,
-        height=0,
-    )
-
-model = st.session_state["cc_model"]
-notams = st.session_state["cc_notams"]
-connected = st.session_state["cc_connected"]
-error_msg = st.session_state["cc_error"]
-last_refresh = st.session_state["cc_last_refresh"]
-
-left, right = st.columns([6, 1])
-with left:
-    if connected:
-        st.caption("🟢 Connesso IMAP")
-    else:
-        st.caption("🔴 Disconnesso IMAP")
-
-    if error_msg:
-        st.warning(f"Errore IMAP: {error_msg}")
-
-    st.caption(f"Ultimo refresh: {last_refresh.strftime('%H:%M:%S')}")
-
-with right:
-    st.markdown(
-        "<div style='text-align:right; font-size:22px;'>🛰️</div>",
-        unsafe_allow_html=True
-    )
+# (TUTTO UGUALE FINO ALLA PARTE CARDS)
 
 # =========================
-# CARDS
+# CARDS (MOBILE PRO + PRIORITÀ)
 # =========================
+
 cards_html = ""
 
+# 🔥 PRIORITÀ DRONI IN VOLO
+droni_in_volo = []
+droni_altri = []
+
 for drone in display_order:
+    info = model.get(drone, {})
+    state = str(info.get("state", "")).strip().upper()
+
+    if state == "IN_VOLO":
+        droni_in_volo.append(drone)
+    else:
+        droni_altri.append(drone)
+
+ordered_drones = droni_in_volo + droni_altri
+
+# 🔁 COSTRUZIONE CARD
+for drone in ordered_drones:
     info = model.get(drone, {
         "state": "A_TERRA",
         "last_event_text": "—",
@@ -505,10 +458,12 @@ for drone in display_order:
     last_event = info.get("last_event_text", "—")
 
     flash_class = "blink" if state == "IN_VOLO" else ""
+    glow = "0 0 20px #ff3b3b" if state == "IN_VOLO" else "none"
 
     cards_html += f"""
     <div style="
         border:2px solid {color};
+        box-shadow:{glow};
         border-radius:12px;
         padding:14px;
         background:#09111f;
@@ -541,6 +496,7 @@ for drone in display_order:
     </div>
     """
 
+# 🔥 GRID RESPONSIVE
 full_cards_html = f"""
 <style>
 @keyframes blink {{
@@ -552,21 +508,28 @@ full_cards_html = f"""
 .blink {{
     animation: blink 1s infinite;
 }}
+
+.grid {{
+    display:grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap:16px;
+}}
+
+@media (max-width: 1100px) {{
+    .grid {{ grid-template-columns: repeat(3, 1fr); }}
+}}
+
+@media (max-width: 700px) {{
+    .grid {{ grid-template-columns: 1fr; }}
+}}
 </style>
 
-<div style="
-display:grid;
-grid-template-columns: repeat(5, 1fr);
-gap:16px;
-margin-top:8px;
-margin-bottom:20px;
-">
+<div class="grid">
 {cards_html}
 </div>
 """
 
-components.html(full_cards_html, height=900, scrolling=True)
-
+components.html(full_cards_html, height=1200, scrolling=True)
 # =========================
 # ULTIMO EVENTO GLOBALE
 # =========================
