@@ -5,7 +5,7 @@
     "email_user": "readi.controlcenter@gmx.com",
     "email_pass": "Aibotix7805!"
   },
-  "poll_seconds": 15,
+  "poll_seconds": 20,
   "tail_uids": 300,
   "ui": {
     "title": "ReADI Control Center AiviewGroup-OPS",
